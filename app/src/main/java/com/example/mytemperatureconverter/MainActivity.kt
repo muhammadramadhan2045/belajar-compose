@@ -36,20 +36,25 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    StatefulTemperatureInput()
+                    Column {
+                        StatefulTemperatureInput()
+                        ConverterApp()
+                    }
                 }
             }
         }
     }
 }
 
+
+//stateful codelab
 @Composable
 fun StatefulTemperatureInput(
     modifier: Modifier = Modifier,
 ) {
 
     var input by remember { mutableStateOf("") }
-    var output by remember {mutableStateOf("")}
+    var output by remember { mutableStateOf("") }
 
     Column(
         modifier.padding(16.dp)
@@ -64,19 +69,72 @@ fun StatefulTemperatureInput(
             label = { Text(text = stringResource(id = R.string.enter_celsius)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             onValueChange = {
-                            input = it
+                input = it
                 output = convertoFahrenheit(it)
             },
         )
 
-        Text(text = stringResource(id = R.string.temperature_fahrenheit,output))
+        Text(text = stringResource(id = R.string.temperature_fahrenheit, output))
     }
 }
 
-private fun convertoFahrenheit(celsius: String)=
+private fun convertoFahrenheit(celsius: String) =
     celsius.toDoubleOrNull()?.let {
-        (it*9/5)+32
+        (it * 9 / 5) + 32
     }.toString()
+
+
+//stateless codelab
+@Composable
+fun StatelessTemperaturInput(
+    input: String,
+    output: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier.padding(16.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.stateless_converter),
+            style = MaterialTheme.typography.headlineSmall,
+        )
+
+        OutlinedTextField(
+            value = input,
+            label = { Text(text = stringResource(id = R.string.enter_celsius)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            onValueChange = onValueChange,
+        )
+
+        Text(text = stringResource(id = R.string.temperature_fahrenheit, output))
+    }
+}
+
+
+//compose yang memanggil stateless
+@Composable
+fun ConverterApp(
+    modifier: Modifier=Modifier
+) {
+    var input by remember {
+        mutableStateOf("")
+    }
+    var output by remember {
+        mutableStateOf("")
+    }
+
+    Column(modifier = modifier) {
+        StatelessTemperaturInput(
+            input = input,
+            output = output,
+            onValueChange = {
+                input = it
+                output = convertoFahrenheit(it)
+            },
+        )
+    }
+}
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
