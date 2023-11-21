@@ -1,6 +1,7 @@
 package com.example.jetcoffee
 
 import CategoryItem
+import HomeSection
 import MenuItem
 import Search
 import SectionText
@@ -49,15 +50,18 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun JetCoffeeApp() {
     Column(
-        modifier=Modifier.verticalScroll(rememberScrollState())
+        modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
         Banner()
-        SectionText(title = stringResource(id = R.string.section_category))
-        CategoryRow()
-        SectionText(title = stringResource(id = R.string.section_favorite_menu))
-        MenuRow(listMenu = dummyMenu)
-        SectionText(title = stringResource(id = R.string.section_best_seller_menu))
-        MenuRow(listMenu = dummyBestSellerMenu)
+        HomeSection(title = stringResource(id = R.string.section_category), content = {
+            CategoryRow()
+        })
+        HomeSection(title = stringResource(id = R.string.section_favorite_menu), content = {
+            MenuRow(listMenu = dummyMenu)
+        })
+        HomeSection(title = stringResource(id = R.string.section_best_seller_menu), content = {
+            MenuRow(listMenu = dummyBestSellerMenu)
+        })
     }
 }
 
@@ -94,15 +98,15 @@ fun CategoryRow(
 
 @Composable
 fun MenuRow(
-    listMenu:List<Menu>,
+    listMenu: List<Menu>,
     modifier: Modifier = Modifier
-){
+) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),
         modifier = modifier,
-    ){
-        items(listMenu,key={it.name}){menu->
+    ) {
+        items(listMenu, key = { it.name }) { menu ->
             MenuItem(menu)
         }
     }
