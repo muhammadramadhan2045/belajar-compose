@@ -20,7 +20,17 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AlertDialogDefaults.containerColor
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.jetcoffee.model.BottomBarItem
 import com.example.jetcoffee.model.Menu
 import com.example.jetcoffee.model.dummyBestSellerMenu
 import com.example.jetcoffee.model.dummyCategory
@@ -48,20 +59,35 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun JetCoffeeApp() {
-    Column(
-        modifier = Modifier.verticalScroll(rememberScrollState())
-    ) {
-        Banner()
-        HomeSection(title = stringResource(id = R.string.section_category), content = {
-            CategoryRow()
-        })
-        HomeSection(title = stringResource(id = R.string.section_favorite_menu), content = {
-            MenuRow(listMenu = dummyMenu)
-        })
-        HomeSection(title = stringResource(id = R.string.section_best_seller_menu), content = {
-            MenuRow(listMenu = dummyBestSellerMenu)
-        })
+fun JetCoffeeApp(modifier: Modifier = Modifier) {
+    Scaffold(
+     bottomBar = {
+         BottomBar()
+     },
+    ){it
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()).padding(it)
+        ) {
+            Banner()
+            HomeSection(
+                title = stringResource(id = R.string.section_category),
+                content = {
+                    CategoryRow()
+                },
+            )
+            HomeSection(
+                title = stringResource(id = R.string.section_favorite_menu),
+                content = {
+                    MenuRow(listMenu = dummyMenu)
+                },
+            )
+            HomeSection(
+                title = stringResource(id = R.string.section_best_seller_menu),
+                content = {
+                    MenuRow(listMenu = dummyBestSellerMenu)
+                },
+            )
+        }
     }
 }
 
@@ -108,6 +134,52 @@ fun MenuRow(
     ) {
         items(listMenu, key = { it.name }) { menu ->
             MenuItem(menu)
+        }
+    }
+}
+
+@Composable
+fun BottomBar(
+
+    modifier: Modifier = Modifier
+) {
+    NavigationBar(
+        containerColor= MaterialTheme.colorScheme.background,
+        modifier = modifier,
+    ) {
+        val navigationItems = listOf(
+            BottomBarItem(
+                icon = Icons.Default.Home,
+                title = stringResource(id = R.string.menu_home)
+            ),
+            BottomBarItem(
+                icon = Icons.Default.Favorite,
+                title = stringResource(id = R.string.menu_favorite)
+            ),
+            BottomBarItem(
+                icon = Icons.Default.AccountCircle,
+                title = stringResource(id = R.string.menu_profile)
+            ),
+        )
+        navigationItems.map {
+
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        imageVector = it.icon,
+                        contentDescription = it.title,
+                    )
+                },
+                label = {
+                    Text(it.title)
+                },
+                selected = it.title == navigationItems[0].title,
+                onClick = {
+
+                },
+                modifier = modifier
+            )
+
         }
     }
 }
