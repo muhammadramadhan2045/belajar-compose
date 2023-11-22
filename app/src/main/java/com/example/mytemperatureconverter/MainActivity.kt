@@ -5,6 +5,7 @@ package com.example.mytemperatureconverter
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
                     Column {
                         StatefulTemperatureInput()
                         ConverterApp()
+                        TwoWayConverterApp()
                     }
                 }
             }
@@ -115,7 +117,7 @@ fun StatelessTemperaturInput(
 //compose yang memanggil stateless
 @Composable
 fun ConverterApp(
-    modifier: Modifier=Modifier
+    modifier: Modifier = Modifier
 ) {
     var input by remember {
         mutableStateOf("")
@@ -137,18 +139,65 @@ fun ConverterApp(
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyTemperatureConverterTheme {
-        Greeting("Android")
+fun GeneralTemperatureInput(
+    scale: Scale,
+    input: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = input,
+            label = { Text(text = stringResource(id = R.string.enter_celsius, scale.scaleNamee)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            onValueChange = onValueChange,
+        )
     }
 }
+
+@Composable
+private fun TwoWayConverterApp(modifier: Modifier = Modifier) {
+    var celsius by remember {
+        mutableStateOf("")
+    }
+    var fahrenheit by remember {
+        mutableStateOf("")
+    }
+    Column(modifier.padding(16.dp)) {
+        Text(
+            text = stringResource(id = R.string.two_way_converter),
+            style = MaterialTheme.typography.headlineSmall
+        )
+        GeneralTemperatureInput(
+            scale = Scale.CELSIUS,
+            input = celsius,
+            onValueChange = {
+                celsius = it
+                fahrenheit = convertoFahrenheit(it)
+            },
+        )
+
+        GeneralTemperatureInput(
+            scale = Scale.FAHRENHEIT,
+            input = fahrenheit,
+            onValueChange = {
+                fahrenheit = it
+                celsius = convertoCelsius(it)
+            },
+        )
+    }
+}
+
+fun convertoCelsius(it: String): String =
+    it.toDoubleOrNull()?.let {
+        (it - 32) * 5 / 9
+    }.toString()
+
+
+enum class Scale(val scaleNamee: String) {
+    CELSIUS("Celsius"),
+    FAHRENHEIT("Fahrenheit")
+}
+
+
+
