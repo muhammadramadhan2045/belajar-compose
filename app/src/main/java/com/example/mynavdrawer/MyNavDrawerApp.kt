@@ -53,17 +53,17 @@ data class MenuItem(val title: String, val icon: ImageVector)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyNavDrawerApp() {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
+//    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+//    val scope = rememberCoroutineScope()
+//    val snackbarHostState = remember { SnackbarHostState() }
+//    val context = LocalContext.current
 
+
+    val appState = rememberMyNavDrawerState()
 
     //hadler back button
-    BackPressHandler(enabled=drawerState.isOpen){
-        scope.launch {
-            drawerState.close()
-        }
+    BackPressHandler(enabled = appState.drawerState.isOpen) {
+        appState.onBackPress()
     }
 
     val items = listOf(
@@ -86,16 +86,13 @@ fun MyNavDrawerApp() {
     Scaffold(
         snackbarHost = {
             SnackbarHost(
-                snackbarHostState
+                appState.snackbarHostState
             )
         },
         topBar = {
             MyTopBar(
                 onMenuClick = {
-                    scope.launch {
-                        if (drawerState.isClosed) drawerState.open()
-                        else drawerState.close()
-                    }
+                    appState::onMenuClick
                 }
             )
         },
@@ -103,8 +100,8 @@ fun MyNavDrawerApp() {
         it
         ModalNavigationDrawer(
             modifier = Modifier.padding(it),
-            drawerState = drawerState,
-            gesturesEnabled = drawerState.isOpen,
+            drawerState = appState.drawerState,
+            gesturesEnabled = appState.drawerState.isOpen,
             drawerContent = {
                 ModalDrawerSheet {
                     Spacer(modifier = Modifier.height(12.dp))
@@ -114,25 +111,7 @@ fun MyNavDrawerApp() {
                             label = { Text(text = item.title) },
                             selected = item == selectedItem.value,
                             onClick = {
-                                scope.launch {
-                                    drawerState.close()
-                                    val snackBarResult = snackbarHostState.showSnackbar(
-                                        message = context.resources.getString(
-                                            R.string.coming_soon,
-                                            item.title
-                                        ),
-                                        actionLabel = context.resources.getString(R.string.subscribe_question),
-                                        withDismissAction = true,
-                                        duration = SnackbarDuration.Short
-                                    )
-                                    if (snackBarResult == SnackbarResult.ActionPerformed) {
-                                        Toast.makeText(
-                                            context,
-                                            context.resources.getString(R.string.subscribed_info),
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
+                                appState::onItemSelected
                                 selectedItem.value = item
                             },
                             modifier = Modifier.padding(horizontal = 12.dp)
@@ -149,7 +128,7 @@ fun MyNavDrawerApp() {
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        if (drawerState.isClosed) stringResource(id = R.string.swipe_to_open)
+                        if (appState.drawerState.isClosed) stringResource(id = R.string.swipe_to_open)
                         else stringResource(id = R.string.swipe_to_close)
                     )
                 }
