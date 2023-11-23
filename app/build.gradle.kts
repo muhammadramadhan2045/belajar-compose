@@ -70,4 +70,7 @@ dependencies {
     //coil :  library khusus untuk memuat data yang dibuat menggunakan Kotlin Coroutine.
     implementation("io.coil-kt:coil-compose:2.2.0")
 
+    //viewmodel agar dapat diakses dari composable
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+
 }

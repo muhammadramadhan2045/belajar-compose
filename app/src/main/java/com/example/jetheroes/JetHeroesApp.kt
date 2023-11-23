@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,7 +39,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.jetheroes.data.HeroRepository
 import com.example.jetheroes.model.HeroesData
 import com.example.jetheroes.ui.theme.JetHeroesTheme
 import kotlinx.coroutines.launch
@@ -47,12 +50,15 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun JetHeroesApp(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: JetHeroesViewModel = viewModel(factory = ViewModelFactory(HeroRepository()))
 ) {
+    val groupedHeroes by viewModel.groupedHeroes.collectAsState()
 
-    val groupedHeroes=HeroesData.heroes
-        .sortedBy { it.name }
-        .groupBy { it.name[0] }
+    //cara old
+//    val groupedHeroes=HeroesData.heroes
+//        .sortedBy { it.name }
+//        .groupBy { it.name[0] }
 
     Box(modifier = modifier) {
         val scope = rememberCoroutineScope()
@@ -66,7 +72,7 @@ fun JetHeroesApp(
             state = listState,
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-            groupedHeroes.forEach{(initial,heroes)->
+            groupedHeroes.forEach { (initial, heroes) ->
                 stickyHeader {
                     CharacterHeader(initial)
                 }
@@ -151,15 +157,15 @@ fun ScrollToTopButton(
 fun CharacterHeader(
     char: Char,
     modifier: Modifier = Modifier
-){
+) {
     Surface(
         color = MaterialTheme.colorScheme.primary,
         modifier = modifier
-    ){
+    ) {
         Text(
             text = char.toString(),
             fontWeight = FontWeight.Bold,
-            color= Color.White,
+            color = Color.White,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
