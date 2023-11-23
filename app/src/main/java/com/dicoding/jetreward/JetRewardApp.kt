@@ -18,13 +18,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.dicoding.jetreward.navigation.NavigationItem
 import com.dicoding.jetreward.navigation.Screen
 import com.dicoding.jetreward.ui.screen.cart.CartScreen
+import com.dicoding.jetreward.ui.screen.detail.DetailScreen
 import com.dicoding.jetreward.ui.screen.home.HomeScreen
 import com.dicoding.jetreward.ui.screen.profile.ProfileScreen
 import com.dicoding.jetreward.ui.theme.JetRewardTheme
@@ -34,9 +37,13 @@ fun JetRewardApp(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
 ) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
     Scaffold(
         bottomBar = {
-            BottomBar(navController)
+            if (currentRoute != Screen.DetailReward.route) {
+                BottomBar(navController)
+            }
         },
         modifier = modifier
     ) {
@@ -45,15 +52,47 @@ fun JetRewardApp(
             navController = navController,
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(it)
-        ){
-            composable(Screen.Home.route){
-                HomeScreen()
+        ) {
+            composable(Screen.Home.route) {
+                HomeScreen(
+                    navigateToDetail = { rewardId ->
+                        navController.navigate(Screen.DetailReward.createRoute(rewardId))
+                    }
+                )
             }
-            composable(Screen.Cart.route){
+            composable(Screen.Cart.route) {
                 CartScreen()
             }
-            composable(Screen.Profile.route){
+            composable(Screen.Profile.route) {
                 ProfileScreen()
+            }
+            composable(
+                route=Screen.DetailReward.route,
+                arguments = listOf(
+                    navArgument("rewardId") {
+                        type = NavType.LongType
+                    },
+                ),
+            ) {
+                val id = it.arguments?.getLong("rewardId") ?: -1L
+                DetailScreen(
+                    rewardId = id,
+                    navigateBack = {
+                        navController.navigateUp()
+
+                    },
+                    navigateToCart = {
+                        navController.popBackStack()
+                        navController.navigate(Screen.Cart.route){
+                            popUpTo(navController.graph.findStartDestination().id){
+                                saveState = true
+                            }
+                            restoreState = true
+                            launchSingleTop = true
+                        }
+                    }
+                )
+
             }
         }
     }
@@ -89,15 +128,15 @@ private fun BottomBar(
         )
         navigationItems.map { item ->
             NavigationBarItem(
-                selected = currentRoute== item.screen.route,
+                selected = currentRoute == item.screen.route,
                 onClick = {
-                          navController.navigate(item.screen.route){
-                              popUpTo(navController.graph.findStartDestination().id){
-                                    saveState = true
-                              }
-                              restoreState = true
-                              launchSingleTop = true
-                          }
+                    navController.navigate(item.screen.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        restoreState = true
+                        launchSingleTop = true
+                    }
                 },
                 icon = {
                     Icon(imageVector = item.icon, contentDescription = item.title)
